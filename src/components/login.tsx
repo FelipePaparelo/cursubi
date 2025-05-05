@@ -1,4 +1,4 @@
-import { FormEvent, useState, ChangeEvent, useEffect } from 'react'
+import { FormEvent, useState, useEffect } from 'react'
 
 interface Geo {
   lat: string

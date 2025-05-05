@@ -1,14 +1,24 @@
-import './App.css'
-import Counter from './components/counter'
-import Todos from './components/todo'
-import Login from '@/components/login'
 
-function App() {
-  return (
-    <>
-      <Login></Login>
-    </>
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Login from './components/login';
+import Todos from '@/components/todo'
+
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Login />,  
+  },
+  {
+    path: '/todo',
+    element: <Todos />
+  }
+]);
+
+
+export default function App(){
+  return(
+    <RouterProvider router={router} />
   )
 }
 
-export default App
