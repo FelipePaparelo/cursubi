@@ -1,90 +1,99 @@
-import { FormEvent, useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
 
-interface Geo {
-  lat: string
-  lng: string
-}
-
-interface Address {
-  street: string
-  suite: string
-  city: string
-  zipcode: string
-  geo: Geo
-}
-
-interface Company {
-  name: string
-  catchPhrase: string
-  bs: string
-}
-
-export interface User {
-  id: number
-  name: string
-  username: string
+interface LoginFormData {
   email: string
-  address: Address
-  phone: string
-  website: string
-  company: Company
+  password: string
 }
 
-interface LoginRequest{
-    name: string
-    username: string
+export default function Login() {
+  const [showPassword, setShowPassword] = useState<boolean>(false)
 
-}
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>()
 
+  const onSubmit = (data: LoginFormData) => {
+    console.log('Datos del formulario:', data)
+  }
 
-export default function Login(){
-    const [backend, setBackend] = useState<User[]>([])
-    const [userLogin, setUserLogin] = useState<LoginRequest>({ name: '', username: '' })
-    const [loginState, setLoginState] = useState<boolean>(false)
-
-    useEffect(() => {
-      fetch('https://jsonplaceholder.typicode.com/users')
-        .then(res => res.json())
-        .then(json => setBackend(json))
-    }, [])
-
-    console.log(backend)
-    console.log(loginState)
-
-    function handleSubmit(e: FormEvent) {
-        e.preventDefault();
-        console.log('NOMBRE PUESTO EN EL INPUT' + userLogin.name)
-        const exists = backend.some(
-            user => user.name === userLogin.name && user.username === userLogin.username
-        );
-        if (exists) {
-            setLoginState(true);
-        } else {
-            setLoginState(false);
-        }
-    }
-
-    return(
-        <>
-            <h1>Login</h1>
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="">Ingrese su nombre</label>
-                <input 
-                    type="text" 
-                    placeholder='Ingrese su nombre' 
-                    value={userLogin.name}
-                    onChange={e => setUserLogin(prev => ({ ...prev, name: e.target.value }))}/>
-                <label htmlFor="">Ingrese su username</label>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Iniciar Sesión
+          </h2>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            <div>
+              <label htmlFor="email" className="sr-only">
+                Email
+              </label>
+              <input
+                {...register('email', {
+                  required: 'El email es requerido',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Email inválido'
+                  }
+                })}
+                type="email"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                placeholder="Email"
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Contraseña
+              </label>
+              <div className="relative">
                 <input
-                    type="text"
-                    placeholder='Ingrese su username'
-                    value={userLogin.username}
-                    onChange={e => setUserLogin(prev => ({ ...prev, username: e.target.value }))}
+                  {...register('password', {
+                    required: 'La contraseña es requerida',
+                    minLength: {
+                      value: 6,
+                      message: 'La contraseña debe tener al menos 6 caracteres'
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: 'La contraseña debe tener máximo 20 caracteres'
+                    }
+                  })}
+                  type={showPassword ? 'text' : 'password'}
+                  className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                  placeholder="Contraseña"
                 />
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-r hover:bg-indigo-700 transition">
-                        Agregar
-                    </button>
-            </form>
-        </>
-    )
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? '👁️' : '👁️‍🗨️'}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Iniciar Sesión
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
 }
