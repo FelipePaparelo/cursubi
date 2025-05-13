@@ -1,22 +1,30 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-
-interface LoginFormData {
-  email: string
-  password: string
-}
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import type { LoginRequest } from '@/services/auth.service'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>()
+    formState: { errors, isSubmitting },
+  } = useForm<LoginRequest>()
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log('Datos del formulario:', data)
+  const onSubmit = async (data: LoginRequest) => {
+    try {
+      setError('')
+      await login(data.email, data.password)
+      navigate('/todo')
+    } catch (err) {
+      setError('Error al iniciar sesión. Por favor, verifica tus credenciales.')
+      console.error('Login error:', err)
+    }
   }
 
   return (
@@ -27,6 +35,11 @@ export default function Login() {
             Iniciar Sesión
           </h2>
         </div>
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -87,9 +100,10 @@ export default function Login() {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Iniciar Sesión
+              {isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
             </button>
           </div>
         </form>

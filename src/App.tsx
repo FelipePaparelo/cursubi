@@ -1,8 +1,7 @@
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Login from './components/login';
 import Todos from '@/components/todo'
-
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const router = createBrowserRouter([
   {
@@ -15,10 +14,11 @@ const router = createBrowserRouter([
   }
 ]);
 
-
 export default function App(){
   return(
-    <RouterProvider router={router} />
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
   )
 }
 
