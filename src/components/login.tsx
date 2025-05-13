@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '@/contexts/AuthContext'
+import { useAuthStore } from '@/stores/authStore'
 import type { LoginRequest } from '@/services/auth.service'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const login = useAuthStore((state) => state.login)
 
   const {
     register,

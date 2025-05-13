@@ -22,7 +22,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-
+        console.log(error);
+        console.log(error.config);
         // Si el error es 401 y no es una petición de refresh
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
@@ -57,18 +58,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Configurar axios para incluir el token en todas las peticiones
+  // Configurar interceptor de request
   useEffect(() => {
-    if (accessToken) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
+    const reqInterceptor = axios.interceptors.request.use((config) => {
+      if (accessToken) {
+        // Directly set the Authorization header on the AxiosHeaders instance
+        config.headers.Authorization = `Bearer ${accessToken}`;
+      }
+      return config;
+    });
+
+    // Al desmontar, quitar el interceptor
+    return () => {
+      axios.interceptors.request.eject(reqInterceptor);
+    };
   }, [accessToken]);
 
   const login = async (email: string, password: string) => {
     try {
       const response = await authService.login({ email, password });
+      console.log(response);
       setAccessToken(response.access_token);
       
       // Obtener información del usuario
